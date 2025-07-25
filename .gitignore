@@ -1,1 +1,32 @@
-/target
+# Rust
+/target/
+**/*.rs.bk
+
+# Cargo
+Cargo.lock
+/.cargo/
+
+# IDEs and editors
+/.idea/
+*.iml
+*.sublime*
+*.vscode/
+*.code-workspace
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Byebug command history
+.byebug_history
+
+# Backup files
+*~
+*.swp
+*.swo
+
+# Logs
+*.log
+
+# Other
+node_modules/
