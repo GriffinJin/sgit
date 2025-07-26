@@ -8,16 +8,38 @@
 
 ## 安装
 
+### 方法一：下载预编译二进制文件（推荐）
+
+1. 前往 [Releases](https://github.com/YOUR_USERNAME/sgit/releases) 页面
+2. 下载对应你系统的二进制文件
+3. 解压并添加到 PATH 环境变量
+
+**Linux/macOS:**
+```bash
+# 下载并解压
+wget https://github.com/YOUR_USERNAME/sgit/releases/latest/download/sgit-x86_64-unknown-linux-gnu
+chmod +x sgit-x86_64-unknown-linux-gnu
+sudo mv sgit-x86_64-unknown-linux-gnu /usr/local/bin/sgit
+```
+
+**Windows:**
+```powershell
+# 下载 sgit-x86_64-pc-windows-msvc.exe 并重命名为 sgit.exe
+# 添加到系统 PATH
+```
+
+### 方法二：从源码编译
+
 1. 确保已安装 [Rust](https://www.rust-lang.org/tools/install)。
 2. 克隆本仓库并编译：
 
 ```bash
-git clone <your_repo_url>
+git clone https://github.com/YOUR_USERNAME/sgit.git
 cd sgit
 cargo build --release
 ```
 
-3. 可选：将可执行文件加入 PATH。
+3. 将可执行文件加入 PATH。
 
 ## 使用方法
 
