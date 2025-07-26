@@ -16,6 +16,8 @@ enum Commands {
     Info,
     /// 强制清除当前目录下所有 Git 仓库的改动（reset + clean）
     Clean,
+    /// 拉取当前目录下所有 Git 仓库（fetch + pull）
+    Pull,
 }
 
 fn main() -> anyhow::Result<()> {
@@ -24,6 +26,7 @@ fn main() -> anyhow::Result<()> {
     match &cli.command {
         Commands::Info => info_command(".")?,
         Commands::Clean => clean_command(".")?,
+        Commands::Pull => pull_command(".")?,
     }
 
     Ok(())
@@ -114,6 +117,36 @@ fn clean_command(root: &str) -> anyhow::Result<()> {
             println!("  ✅ 成功清理\n");
         } else {
             println!("  ❌ 清理失败\n");
+        }
+    }
+
+    Ok(())
+}
+
+fn pull_command(root: &str) -> anyhow::Result<()> {
+    let dirs = find_git_dirs(root)?;
+
+    for dir in dirs {
+        println!("拉取仓库: {}", dir);
+
+        // git fetch
+        let fetch_status = Command::new("git")
+            .arg("-C")
+            .arg(&dir)
+            .arg("fetch")
+            .status()?;
+
+        // git pull
+        let pull_status = Command::new("git")
+            .arg("-C")
+            .arg(&dir)
+            .arg("pull")
+            .status()?;
+
+        if fetch_status.success() && pull_status.success() {
+            println!("  ✅ 拉取成功\n");
+        } else {
+            println!("  ❌ 拉取失败\n");
         }
     }
 
