@@ -3,8 +3,9 @@
 增强版 Git 工具，支持批量管理当前目录及子目录下的多个 Git 仓库。
 
 ## 功能特性
-- **批量显示仓库信息**：递归查找当前目录下所有 Git 仓库，显示其远程地址和当前分支。
+- **批量显示仓库信息**：递归查找当前目录下所有 Git 仓库，显示其所有远程（支持多 remote）及当前分支，输出结构美观直观。
 - **批量强制清理仓库**：对所有仓库执行 `git reset --hard` 和 `git clean -f`，一键还原所有改动。
+- **批量拉取仓库**：对所有仓库执行 `git fetch && git pull`，一键同步所有仓库。
 
 ## 安装
 
@@ -44,11 +45,26 @@ cargo build --release
 ## 使用方法
 
 ```bash
-# 显示所有仓库的远程地址和分支
+# 显示所有仓库的远程地址和分支（支持多 remote，输出美观）
 target/release/sgit info
+
+# 输出示例：
+# 找到 2 个 Git 仓库:
+#
+# repo1           [main]
+#   > origin: git@github.com:user/repo1.git
+#   > upstream: git@github.com:other/repo1.git
+#
+# repo2           [dev]
+#   > origin: git@github.com:user/repo2.git
+#
+# 每个仓库之间有空行，分支用[]包裹，支持多 remote，结构清晰。
 
 # 强制清理所有仓库的改动
 target/release/sgit clean
+
+# 拉取所有仓库（fetch + pull）
+target/release/sgit pull
 ```
 
 ## 依赖

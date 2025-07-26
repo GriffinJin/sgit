@@ -57,20 +57,14 @@ fn find_git_dirs(root: &str) -> anyhow::Result<Vec<String>> {
 fn info_command(root: &str) -> anyhow::Result<()> {
     let dirs = find_git_dirs(root)?;
 
+    if dirs.is_empty() {
+        println!("当前目录下没有找到 Git 仓库");
+        return Ok(());
+    }
+
+    println!("找到 {} 个 Git 仓库:\n", dirs.len());
+
     for dir in dirs {
-        let output = Command::new("git")
-            .arg("-C")
-            .arg(&dir)
-            .arg("remote")
-            .arg("get-url")
-            .arg("origin")
-            .output();
-
-        let remote = match output {
-            Ok(out) if out.status.success() => String::from_utf8_lossy(&out.stdout).trim().to_string(),
-            _ => "<no origin>".to_string(),
-        };
-
         let output = Command::new("git")
             .arg("-C")
             .arg(&dir)
@@ -84,7 +78,55 @@ fn info_command(root: &str) -> anyhow::Result<()> {
             _ => "<unknown>".to_string(),
         };
 
-        println!("仓库: {}\n  远程: {}\n  分支: {}\n", dir, remote, branch);
+        // 获取所有 remote 名称
+        let remotes_output = Command::new("git")
+            .arg("-C")
+            .arg(&dir)
+            .arg("remote")
+            .output();
+        let remotes = match remotes_output {
+            Ok(out) if out.status.success() => {
+                String::from_utf8_lossy(&out.stdout)
+                    .lines()
+                    .map(|s| s.trim().to_string())
+                    .collect::<Vec<_>>()
+            },
+            _ => vec![],
+        };
+
+        // 获取仓库目录名，避免只显示"."
+        let repo_name = if dir == "." {
+            std::env::current_dir()
+                .ok()
+                .and_then(|p| p.file_name().and_then(|n| n.to_str().map(|s| s.to_string())))
+                .or_else(|| std::env::current_dir().ok().map(|p| p.to_string_lossy().to_string()))
+                .unwrap_or_else(|| dir.clone())
+        } else {
+            let path = std::path::Path::new(&dir);
+            path.file_name()
+                .and_then(|n| n.to_str().map(|s| s.to_string()))
+                .unwrap_or_else(|| dir.clone())
+        };
+        println!("{:<15} [{}]", repo_name, branch);
+        if remotes.is_empty() {
+            println!("  > <no remote>");
+        } else {
+            for remote in remotes {
+                let url_output = Command::new("git")
+                    .arg("-C")
+                    .arg(&dir)
+                    .arg("remote")
+                    .arg("get-url")
+                    .arg(&remote)
+                    .output();
+                let url = match url_output {
+                    Ok(out) if out.status.success() => String::from_utf8_lossy(&out.stdout).trim().to_string(),
+                    _ => "<no url>".to_string(),
+                };
+                println!("  > {}: {}", remote, url);
+            }
+        }
+        println!(""); // 每个仓库后加一空行
     }
 
     Ok(())
